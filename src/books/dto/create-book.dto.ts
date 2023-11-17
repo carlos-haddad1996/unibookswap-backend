@@ -3,7 +3,7 @@ import { IsNumber, IsString } from 'class-validator';
 
 export class CreateBookDto {
   @ApiProperty({
-    type: Number,
+    type: String,
     description: `Product's title`,
     example: 'Book 1',
   })
@@ -11,7 +11,7 @@ export class CreateBookDto {
   title: string;
 
   @ApiProperty({
-    type: Number,
+    type: String,
     description: `Product's author`,
     example: 'John Doe',
   })
@@ -27,7 +27,7 @@ export class CreateBookDto {
   price: number;
 
   @ApiProperty({
-    type: Number,
+    type: String,
     description: `Product's description`,
     example: 'This is book 1',
   })
@@ -35,7 +35,7 @@ export class CreateBookDto {
   description: string;
 
   @ApiProperty({
-    type: Number,
+    type: String,
     description: `Product's category`,
     example: 'Science & Fiction',
   })
@@ -43,7 +43,7 @@ export class CreateBookDto {
   category: string;
 
   @ApiProperty({
-    type: Number,
+    type: String,
     description: `Product's image`,
     example: 'Book 1 image',
   })
