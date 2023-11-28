@@ -22,7 +22,7 @@ model Book {
 
 model User {
   id          Int       @id @default(autoincrement())
-  name        String
+  name        String?
   email       String    @unique
-  googleId    String    @unique
+  picture     String?
 }
