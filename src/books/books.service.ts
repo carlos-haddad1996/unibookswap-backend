@@ -1,14 +1,52 @@
 import { Injectable } from '@nestjs/common';
-import { CreateBookDto } from './dto/create-book.dto';
-import { UpdateBookDto } from './dto/update-book.dto';
+import { BookDto } from './dto/book.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
-
+import { CreateBookDto } from './dto/create-book.dto';
+import { Storage } from '@google-cloud/storage';
+import config from '../../config/google-cloud-storage.config';
 @Injectable()
 export class BooksService {
+  private storage = new Storage({
+    projectId: config.projectId,
+    keyFilename: config.keyFileName,
+  });
+
   constructor(private prisma: PrismaService) {}
 
-  create(createBookDto: CreateBookDto) {
-    return this.prisma.book.create({ data: createBookDto });
+  async create(
+    userId: number,
+    bookData: BookDto,
+    picture: Express.Multer.File,
+  ): Promise<CreateBookDto> {
+    try {
+      console.log(picture);
+
+      const bucket = this.storage.bucket(config.projectId);
+      const fileName = `${userId}-${Date.now()}-${picture.originalname}`;
+      const file = bucket.file(fileName);
+
+      const fileBuffer = picture.buffer;
+
+      await file.save(fileBuffer, {
+        metadata: {
+          contentType: picture.mimetype,
+        },
+      });
+
+      const pictureUrl = `https://storage.googleapis.com/${config.projectId}/${fileName}`;
+
+      const createdBook = await this.prisma.book.create({
+        data: {
+          userId,
+          ...bookData,
+          image: pictureUrl,
+        },
+      });
+
+      return createdBook;
+    } catch (error: any) {
+      throw new Error('Failed to create book');
+    }
   }
 
   findAll() {
@@ -19,12 +57,16 @@ export class BooksService {
     return this.prisma.book.findFirst({ where: { id } });
   }
 
-  update(id: number, updateBookDto: UpdateBookDto) {
-    return this.prisma.book.update({
-      where: { id },
-      data: updateBookDto,
-    });
+  async findBooksByUserId(userId: string) {
+    return this.prisma.book.findMany({ where: { userId: parseInt(userId) } });
   }
+
+  // update(id: number, updateBookDto: UpdateBookDto) {
+  //   return this.prisma.book.update({
+  //     where: { id },
+  //     data: updateBookDto,
+  //   });
+  // }
 
   remove(id: number) {
     return this.prisma.book.delete({ where: { id } });
