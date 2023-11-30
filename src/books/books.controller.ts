@@ -72,13 +72,13 @@ export class BooksController {
     return this.booksService.findAll();
   }
 
-  @Get(':id')
-  @ApiOperation({ summary: 'Gets book by Id' })
-  @ApiResponse({ status: HttpStatus.OK, type: CreateBookDto })
-  @ApiBadRequestResponse({ description: 'Bad Request' })
-  findOne(@Param('id') id: string) {
-    return this.booksService.findOne(+id);
-  }
+  // @Get(':id')
+  // @ApiOperation({ summary: 'Gets book by Id' })
+  // @ApiResponse({ status: HttpStatus.OK, type: CreateBookDto })
+  // @ApiBadRequestResponse({ description: 'Bad Request' })
+  // findOne(@Param('id') id: string) {
+  //   return this.booksService.findOne(+id);
+  // }
 
   @Get('user/:userId')
   @ApiOperation({ summary: 'Get list of books by userId' })
@@ -89,6 +89,30 @@ export class BooksController {
       return this.booksService.findBooksByUserId(userId);
     } catch (error: any) {
       throw Error(`Failed to get books: ${error.message}`);
+    }
+  }
+
+  @Get('authors')
+  @ApiOperation({ summary: 'Get list of authors' })
+  @ApiResponse({ status: HttpStatus.OK, type: [String] })
+  @ApiBadRequestResponse({ description: 'Bad Request' })
+  async getAuthors() {
+    try {
+      return this.booksService.getAuthors();
+    } catch (error: any) {
+      throw Error(`Failed to get authors: ${error.message}`);
+    }
+  }
+
+  @Get('categories')
+  @ApiOperation({ summary: 'Get list of categories' })
+  @ApiResponse({ status: HttpStatus.OK, type: [String] })
+  @ApiBadRequestResponse({ description: 'Bad Request' })
+  async getCategories() {
+    try {
+      return this.booksService.getCategories();
+    } catch (error: any) {
+      throw Error(`Failed to get categories: ${error.message}`);
     }
   }
 
