@@ -3,7 +3,6 @@ import {
   Get,
   Post,
   Body,
-  Patch,
   Param,
   Delete,
   HttpStatus,
@@ -12,6 +11,7 @@ import {
   ParseFilePipe,
   MaxFileSizeValidator,
   FileTypeValidator,
+  Put,
 } from '@nestjs/common';
 import { BooksService } from './books.service';
 import { BookDto } from './dto/book.dto';
@@ -116,17 +116,25 @@ export class BooksController {
     }
   }
 
-  // @Patch(':id')
-  // @ApiOperation({ summary: 'Update book by Id' })
-  // @ApiResponse({ status: HttpStatus.OK, type: CreateBookDto })
-  // @ApiBadRequestResponse({ description: 'Bad Request' })
-  // update(@Param('id') id: string, @Body() updateBookDto: UpdateBookDto) {
-  //   return this.booksService.update(+id, updateBookDto);
-  // }
+  @Put(':id/user/:userId')
+  @ApiOperation({ summary: 'Updates book by Id' })
+  @ApiResponse({ status: HttpStatus.OK, type: UpdateBookDto })
+  @ApiBadRequestResponse({ description: 'Bad Request' })
+  async update(
+    @Param('id') id: string,
+    @Param('userId') userId: string,
+    @Body() updateBookDto?: UpdateBookDto,
+  ) {
+    try {
+      return this.booksService.updateBook(+id, updateBookDto, parseInt(userId));
+    } catch (error: any) {
+      throw Error(`Failed to update book: ${error.message}`);
+    }
+  }
 
-  @Delete(':id')
+  @Delete(':id/user/:userId')
   @ApiOperation({ summary: 'Deletes book by Id' })
-  remove(@Param('id') id: string) {
-    return this.booksService.remove(+id);
+  remove(@Param('id') id: string, @Param('userId') userId: string) {
+    return this.booksService.remove(+id, parseInt(userId));
   }
 }

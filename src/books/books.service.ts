@@ -4,6 +4,7 @@ import { PrismaService } from 'src/prisma/prisma.service';
 import { CreateBookDto } from './dto/create-book.dto';
 import { Storage } from '@google-cloud/storage';
 import config from '../../config/google-cloud-storage.config';
+import { UpdateBookDto } from './dto/update-book.dto';
 @Injectable()
 export class BooksService {
   private storage = new Storage({
@@ -93,14 +94,54 @@ export class BooksService {
     }
   }
 
-  // update(id: number, updateBookDto: UpdateBookDto) {
-  //   return this.prisma.book.update({
-  //     where: { id },
-  //     data: updateBookDto,
-  //   });
-  // }
+  async updateBook(id: number, bookData: UpdateBookDto, userId: number) {
+    try {
+      const existingBook = await this.prisma.book.findFirst({
+        where: { id },
+        include: {
+          user: true,
+        },
+      });
 
-  remove(id: number) {
-    return this.prisma.book.delete({ where: { id } });
+      if (!existingBook) {
+        throw new Error('Book not found');
+      }
+
+      if (existingBook.user.id !== userId) {
+        throw new Error('Unauthorized');
+      }
+
+      const updatedBook = await this.prisma.book.update({
+        where: { id },
+        data: bookData,
+      });
+
+      return updatedBook;
+    } catch (error: any) {
+      throw new Error(`Error at updateBook() method: ${error.message}`);
+    }
+  }
+
+  async remove(id: number, userId: number) {
+    try {
+      const existingBook = await this.prisma.book.findFirst({
+        where: { id },
+        include: {
+          user: true,
+        },
+      });
+
+      if (!existingBook) {
+        throw new Error('Book not found');
+      }
+
+      if (existingBook.user.id !== userId) {
+        throw new Error('Unauthorized');
+      }
+
+      await this.prisma.book.delete({ where: { id } });
+    } catch (error: any) {
+      throw new Error(`Error at remove() method: ${error.message}`);
+    }
   }
 }
